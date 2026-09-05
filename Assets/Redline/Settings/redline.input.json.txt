@@ -1,0 +1,16 @@
+{
+  "_comment": "Swipe recogniser tuning. CLIENT ONLY — deliberately not in redline.game.json.",
+  "_why": "redline.game.json is hashed and every submission is stamped with that hash. Swipe feel is presentation, not a rule: if the dead zone lived in the hashed config, retuning it would change the hash and the server would reject every run played on the old build as stale. Nothing here can change a score.",
+
+  "minimumDistancePixels": 42.0,
+  "_minimumDistance": "Below this it is a tap, not a swipe. Tuned as a fraction of a thumb's travel rather than in absolute pixels would be better on very different screens; see the known gaps.",
+
+  "maximumDurationSeconds": 0.45,
+  "_maximumDuration": "A slow drag is a scroll, not a flick. Long enough to be forgiving, short enough that resting a thumb and moving it later does not fire.",
+
+  "deadZoneRatio": 1.4,
+  "_deadZone": "Horizontal travel must exceed vertical by this ratio. Stops a diagonal thumb-swipe up the screen from registering as a lane change, which is the single most common false positive on a phone held one-handed.",
+
+  "allowHoldRepeat": false,
+  "_allowHoldRepeat": "Holding does not repeat. One swipe is one lane; a repeat would make the queue rules impossible to reason about."
+}

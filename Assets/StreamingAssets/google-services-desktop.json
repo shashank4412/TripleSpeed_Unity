@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "623191754889",
+    "project_id": "attendance-91bdd",
+    "storage_bucket": "attendance-91bdd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:623191754889:android:123c4e45c137c6b6441e58",
+        "android_client_info": {
+          "package_name": "com.DefaultCompany.Test"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "623191754889-hcre29h92vppt80v2chbadhsggbh15ia.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA80WDTmIoyI-20w91YZbo0XXqPR-bkJNc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "623191754889-hcre29h92vppt80v2chbadhsggbh15ia.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "623191754889-k77bvp14odpnhs86um7rsog8nourfm2r.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.SnowcraftGames.Attendance"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:623191754889:android:22cf1a4b5aad421e441e58",
+        "android_client_info": {
+          "package_name": "com.SnowcraftGames.Attendance"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "623191754889-hcre29h92vppt80v2chbadhsggbh15ia.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA80WDTmIoyI-20w91YZbo0XXqPR-bkJNc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "623191754889-hcre29h92vppt80v2chbadhsggbh15ia.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "623191754889-k77bvp14odpnhs86um7rsog8nourfm2r.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.SnowcraftGames.Attendance"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
