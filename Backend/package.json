@@ -1,0 +1,29 @@
+{
+  "name": "redline-backend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "REDLINE backend: Firebase Cloud Functions (gen 2, asia-south1) plus the shared deterministic simulation core, rating engine, fairness proof and operator tools. Replaces the .NET/Postgres/Render stack.",
+  "workspaces": [
+    "sim-core-ts",
+    "rating",
+    "functions",
+    "proof",
+    "tools"
+  ],
+  "engines": {
+    "node": "20"
+  },
+  "scripts": {
+    "build": "npm run build --workspace @redline/sim-core --workspace @redline/rating --workspace @redline/functions --workspace @redline/proof --workspace @redline/tools",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "lint:money": "node tools/lint-money.mjs",
+    "proof": "npm --workspace proof run start",
+    "rc:push": "node tools/lib/push-remote-config.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5"
+  }
+}

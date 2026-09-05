@@ -1,0 +1,49 @@
+{
+  "$comment": "REDLINE Firebase project config. Deploy target is project attendance-91bdd, region asia-south1 (set per-function in code, gen 2). `firebase deploy` from Backend/ ships functions + firestore rules/indexes + remote config template.",
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "redline",
+      "runtime": "nodejs20",
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR/..\" run build --workspace @redline/sim-core --workspace @redline/rating --workspace @redline/functions"
+      ],
+      "ignore": [
+        "node_modules",
+        ".git",
+        "src",
+        "*.local",
+        "**/*.test.ts",
+        "tsconfig*.json"
+      ]
+    }
+  ],
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "remoteconfig": {
+    "template": "remoteconfig.template.json"
+  },
+  "hosting": {
+    "$comment": "Operator-only Remote Config editor page. Talks to the adminConfig callable (Secret Manager passphrase). Not part of the game.",
+    "public": "hosting/public",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
+  },
+  "emulators": {
+    "auth": {
+      "port": 9099
+    },
+    "functions": {
+      "port": 5001
+    },
+    "firestore": {
+      "port": 8080
+    },
+    "ui": {
+      "enabled": true,
+      "port": 4000
+    },
+    "singleProjectMode": true
+  }
+}

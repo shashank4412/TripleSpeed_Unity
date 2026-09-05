@@ -1,0 +1,80 @@
+rules_version = '2';
+
+// REDLINE Firestore security rules.
+//
+// The client is trusted to render and to read its own state. It is trusted with
+// NOTHING that decides money: every write is denied here and only the Admin SDK
+// (the Cloud Functions) can mutate. Reads are scoped so a challenger can never
+// see the poster's banked score before the match is settled — the score lives
+// only in redline_matches/{id}/result/{uid}, gated on the parent's state.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isParty(matchId) {
+      let m = get(/databases/$(database)/documents/redline_matches/$(matchId)).data;
+      return signedIn() && (m.posterUid == request.auth.uid || m.challengerUid == request.auth.uid);
+    }
+
+    // --- accounts: a player reads only their own ---
+    match /redline_accounts/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow write: if false;
+
+      match /deposits/{depositId} {
+        allow read: if signedIn() && request.auth.uid == uid;
+        allow write: if false;
+      }
+    }
+
+    // --- matches: lifecycle state is readable by either party ---
+    match /redline_matches/{matchId} {
+      allow read: if isParty(matchId);
+      allow write: if false;
+
+      // Non-sensitive: the player's own submission echo. No opponent score here.
+      match /submissions/{uid} {
+        allow read: if signedIn() && request.auth.uid == uid && isParty(matchId);
+        allow write: if false;
+      }
+
+      // The banked score. Readable ONLY once the contest is over.
+      match /result/{uid} {
+        allow read: if signedIn()
+          && request.auth.uid == uid
+          && get(/databases/$(database)/documents/redline_matches/$(matchId)).data.state in ['settled', 'rolledBack'];
+        allow write: if false;
+      }
+
+      // The ledger and its keys are audit data — server-only.
+      match /ledger/{rowId}    { allow read, write: if false; }
+      match /ledgerKeys/{rowId} { allow read, write: if false; }
+    }
+
+    // --- challenge inventory: server-only. The matchmake callable is the only
+    //     way a client learns about an open challenge, and it withholds the
+    //     target score. A raw read here would leak bankedScore. ---
+    match /redline_challenges/{matchId} {
+      allow read, write: if false;
+    }
+
+    // --- everything else the server owns ---
+    match /redline_idempotency/{id}       { allow read, write: if false; }
+    match /redline_settlements/{id}        { allow read, write: if false; }
+    match /redline_ratingHistory/{id}      { allow read, write: if false; }
+    match /redline_deviceFingerprints/{id} { allow read, write: if false; }
+    match /redline_ipSightings/{id}        { allow read, write: if false; }
+    match /redline_accountLinks/{id}       { allow read, write: if false; }
+    match /redline_meetings/{id}           { allow read, write: if false; }
+    match /redline_ttl/{id}                { allow read, write: if false; }
+
+    // Default deny — anything not matched above.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
