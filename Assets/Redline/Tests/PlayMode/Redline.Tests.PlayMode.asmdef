@@ -1,0 +1,10 @@
+{
+  "name": "Redline.Tests.PlayMode",
+  "rootNamespace": "Redline.Tests.PlayMode",
+  "references": ["Redline.Core", "Redline.Client", "UnityEngine.TestRunner"],
+  "includePlatforms": [],
+  "precompiledReferences": ["nunit.framework.dll"],
+  "defineConstraints": ["UNITY_INCLUDE_TESTS"],
+  "autoReferenced": false,
+  "noEngineReferences": false
+}

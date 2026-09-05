@@ -1,0 +1,10 @@
+{
+  "name": "Redline.Tests.EditMode",
+  "rootNamespace": "Redline.Tests.EditMode",
+  "references": ["Redline.Core", "Redline.Client", "UnityEngine.TestRunner", "UnityEditor.TestRunner"],
+  "includePlatforms": ["Editor"],
+  "precompiledReferences": ["nunit.framework.dll"],
+  "defineConstraints": ["UNITY_INCLUDE_TESTS"],
+  "autoReferenced": false,
+  "noEngineReferences": false
+}
