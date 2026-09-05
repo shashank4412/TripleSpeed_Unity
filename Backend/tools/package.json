@@ -1,0 +1,33 @@
+{
+  "name": "@redline/tools",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Operator CLIs: replay a match, prove road solvability over N seeds, run the fairness simulation, and roll back a settlement (a compensating transaction \u2014 deliberately not an endpoint). Admin ones need Backend/.secrets/<key>.json via GOOGLE_APPLICATION_CREDENTIALS.",
+  "engines": {
+    "node": "20"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "replay": "npm run build && node lib/replay.js",
+    "solvability": "npm run build && node lib/solvability.js",
+    "simulate": "npm run build && node lib/simulate.js",
+    "rollback": "npm run build && node lib/rollback.js",
+    "seed": "npm run build && node lib/seed.js",
+    "vectors": "npm run build && node lib/vectors.js",
+    "preflight": "npm run build && node lib/preflight.js",
+    "rehearse": "npm run build && node lib/rehearse.js",
+    "hammer": "npm run build && node lib/hammer.js"
+  },
+  "dependencies": {
+    "@redline/functions": "*",
+    "@redline/rating": "*",
+    "@redline/sim-core": "*",
+    "@redline/proof": "*",
+    "firebase-admin": "^12.3.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4"
+  }
+}
