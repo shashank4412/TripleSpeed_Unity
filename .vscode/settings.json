@@ -1,0 +1,27 @@
+{
+  "files.exclude": {
+    "**/.DS_Store": true,
+    "**/Library": true,
+    "**/Temp": true,
+    "**/Logs": true,
+    "**/obj": true,
+    "**/bin": true,
+    "**/*.meta": true,
+    "**/UserSettings": true
+  },
+  "files.watcherExclude": {
+    "**/Library/**": true,
+    "**/Temp/**": true,
+    "**/Logs/**": true,
+    "**/obj/**": true,
+    "**/bin/**": true
+  },
+  "omnisharp.useModernNet": true,
+  "editor.formatOnSave": true,
+  "[csharp]": {
+    "editor.defaultFormatter": "ms-dotnettools.csharp"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  }
+}
