@@ -1,0 +1,24 @@
+{
+  "name": "@redline/sim-core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Deterministic REDLINE simulation core, ported byte-for-byte from Backend/sim-core-cs. Zero runtime dependencies. Imported unchanged by the Cloud Functions, the proof harness and the tools so there is exactly one implementation of the rules that decide a score.",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "default": "./lib/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5"
+  }
+}
