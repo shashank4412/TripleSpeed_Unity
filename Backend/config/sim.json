@@ -1,0 +1,47 @@
+{
+  "$comment": [
+    "Tools/Simulate. Everything the 50,000-match run needs that is not already",
+    "in seed.json (the population) or redline.economy.json (the rules).",
+    "",
+    "The split matters: rules the SERVER enforces live in the economy config and",
+    "the simulation reads the same file, so a reviewer changing the rake or the",
+    "matchmaking band changes both at once. Only things that exist purely for",
+    "the harness are here."
+  ],
+
+  "seed": 424242,
+  "$seed": "Drives arrivals and outcomes. Independent of seed.json's, so the same population can be run under different luck.",
+
+  "startTime": "2026-01-01T00:00:00Z",
+  "$startTime": "The virtual timeline's origin. Nothing in the run reads the wall clock.",
+
+  "targetMatches": 50000,
+  "maxVirtualDays": 400,
+  "$maxVirtualDays": "A stop so a misconfigured activity profile cannot run forever. Reaching it before targetMatches is a failure the harness reports rather than hides.",
+
+  "outcome": {
+    "$comment": "How skill and greed become a banked score. See OutcomeModel for the formulas.",
+    "scoreScale": 4000,
+    "$scoreScale": "Expected reachable score for a player at referenceSkill. Arbitrary units — only ratios matter, since the winner is whoever banked more.",
+
+    "referenceSkill": 1200,
+    "$referenceSkill": "Must equal rating.initial and seed.json's latentSkill.mean, so capability 1.0 sits at the middle of the population.",
+
+    "safetySlopeMilli": 400,
+    "safetyMinMilli": 700,
+    "safetyMaxMilli": 1600,
+    "$safety": "How much further than their target a player can typically go. This is the term that makes skill lower the crash rate instead of only raising the score: at 400, a player one whole reference-skill above average survives 40% further.",
+
+    "riskFractionMinMilli": 250,
+    "riskFractionMaxMilli": 1500,
+    "$riskFraction": "Where greed puts the banking target, as a fraction of capability. The timid bank at a quarter of what they could reach; the greedy drive half again past it and crash most of the time.",
+
+    "throwFractionMilli": 60,
+    "$throwFraction": "What a thrown match banks. Small but not zero — an anomaly that scored exactly zero every time would be caught by a rule so crude that catching it would prove nothing about the detector."
+  },
+
+  "output": {
+    "directory": "artifacts/sim-output",
+    "$why": "CSV, one row per match, written as the run goes. The report must be regenerable from these files without re-running the simulation."
+  }
+}

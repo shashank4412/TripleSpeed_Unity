@@ -1,0 +1,105 @@
+{
+  "$comment": [
+    "Everything Tools/Seed needs, and nothing it reads from anywhere else.",
+    "Running Tools/Seed twice against a wiped database must produce byte-identical",
+    "dumps, so every value below is either fixed here or derived from `seed`.",
+    "",
+    "This file is simulator input. It is never served to a client and the running",
+    "server never reads it."
+  ],
+
+  "seed": 20260825,
+  "$seed": "The one number the whole population comes from. Change it for a different 2,000 players; keep it for the same ones.",
+
+  "populationStart": "2026-01-01T00:00:00Z",
+  "$populationStart": "Account creation timestamps are derived from this, not from the wall clock. A seeder that used DateTime.UtcNow could not produce an identical database twice.",
+
+  "accounts": 2000,
+
+  "latentSkill": {
+    "mean": 1200,
+    "standardDeviation": 250,
+    "min": 400,
+    "max": 2600,
+    "$distribution": "Normal, by the sum-of-twelve-uniforms construction: exact integer arithmetic, no Log or Cos, so it reproduces bit-for-bit on any platform. The tails stop at +/-6 sigma, which at 2,000 players is a population of zero.",
+    "$mean": "1200 rather than the 1500 the task suggests, and deliberately equal to rating.initial. Elo is zero-sum, so the population's mean rating is pinned wherever it starts; if latent skill were centred at 1500 the ratings would converge to the right ORDER around a mean of 1200 and report section 1 would carry a permanent 300-point offset that has to be explained away. Same scale for truth and measurement makes the convergence plot a line through the origin.",
+    "$spread": "sigma 250 spans roughly 400 to 2000 across the population, which is wide enough that the rating bands and the top-decile protection are actually exercised."
+  },
+
+  "startingRating": {
+    "establishedFraction": 0.60,
+    "establishedNoise": 120,
+    "establishedMatchesMin": 12,
+    "establishedMatchesMax": 400,
+    "$why": "Six in ten accounts arrive already converged near their true skill with a match history behind them; the rest are fresh at rating.initial with zero matches. Seeding everyone at 1200 would only ever test a cold start, and the provisional K band would be the only one the simulation exercised.",
+    "$noise": "An established rating is latent skill plus up to +/-120, because a converged rating is close to true skill, not equal to it."
+  },
+
+  "balance": {
+    "amountCents": 10000,
+    "$why": "$100.00. Enough for a long run at any stake on the ladder without a deposit, since deposit flows are out of scope. Every account gets the same amount so report section 7's net-dollars-per-decile starts from a flat line. Integer cents for the same reason the economy config is (S-101)."
+  },
+
+  "activity": {
+    "sessionsPerDayMin": 0.20,
+    "sessionsPerDayMax": 6.00,
+    "$why": "A twenty-fold spread between the quietest and busiest players. A uniform activity rate would hide the fact that a rating converges on match count, not on elapsed time."
+  },
+
+  "network": {
+    "sharedFraction": 0.12,
+    "sharedAddresses": 15,
+    "sharedRegistrationWindowMinutes": 240,
+    "$why": "Honest players genuinely share addresses — one household, one office NAT, one campus, one mobile carrier. Without modelling that, report section 9's false-positive rate would be trivially zero and would prove nothing about the shared-IP rule: the rule would only ever see the colluding pair, which is exactly the artefact the brief warns about.",
+    "$window": "A shared-network group registers within a few hours of each other, because housemates sign up when one of them recommends it. That clustering is what makes some honest pairs fall inside sharedIpWindowMinutes and become real false positives to count.",
+    "$note": "The colluding pair has its own address, so it is unambiguous ground truth — but structurally it looks exactly like a household, which is the point section 9 has to confront."
+  },
+
+  "riskAppetite": {
+    "min": 150,
+    "max": 900,
+    "$units": "Thousandths. 0 banks at the first opportunity, 1000 drives until the road kills them.",
+    "$why": "Drawn independently of skill, because greed is a temperament and not a competence. The outcome model (T-704) turns this into a banking target."
+  },
+
+  "stakes": {
+    "ladderCents": [50, 100, 200, 500, 1000],
+    "weights": [30, 30, 20, 15, 5],
+    "$why": "Must match money.stakeCents in redline.economy.json, since a stake off the ladder is refused. Integer cents for the same reason the economy config is (S-101). Weighted toward the low end: most players are not playing for ten dollars."
+  },
+
+  "anomalies": {
+    "$comment": "Four accounts out of 2,000. The other 1,996 are the false-positive denominator for report section 9 — the brief is explicit that catching nobody honest matters as much as catching these.",
+
+    "collusionPair": {
+      "latentSkill": 1200,
+      "sharedDevice": true,
+      "sharedIp": true,
+      "throwRateMilli": 900,
+      "$behaviour": "Two accounts on one handset and one network. When matched against each other the designated giver throws the match; against anyone else both play honestly, which is what makes them hard to spot from results alone.",
+      "$expectation": "The device and IP exclusions should stop them ever being matched. If report section 9 shows them meeting, the exclusion is broken."
+    },
+
+    "sandbagger": {
+      "latentSkill": 2100,
+      "sinkToRating": 900,
+      "throwRateMilli": 950,
+      "$behaviour": "Throws matches until the rating falls below sinkToRating, then plays at full latent skill against the weaker opponents the band now offers.",
+      "$expectation": "Two-phase, so the give-away is the discontinuity: a long run of losses followed by a long run of wins at a rating far below true skill."
+    },
+
+    "stealthPair": {
+      "enabled": false,
+      "latentSkill": 1200,
+      "throwRateMilli": 900,
+      "$behaviour": "A second colluding pair with SEPARATE handsets and SEPARATE addresses. Behaviourally identical to the first pair; structurally invisible to every exclusion the product has.",
+      "$why": "Review test #14 is 'we plant our own anomaly and see whether your rules catch it'. This is that test, planted by us in advance and expected to FAIL — the architecture doc already states that two phones on two networks defeats all of this, and section 9 of the report has to demonstrate it rather than assert it. Off by default so the baseline population stays the one the report was written from."
+    },
+
+    "smurf": {
+      "latentSkill": 2300,
+      "$behaviour": "Full skill from the first match, entering fresh at rating.initial with zero matches played.",
+      "$expectation": "Provisional K of 40 should climb them quickly. Report section 8 measures how many opponents they beat on the way up, because those opponents met somebody far above their band."
+    }
+  }
+}

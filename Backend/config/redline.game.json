@@ -1,0 +1,75 @@
+{
+  "$comment": [
+    "THE single source of truth for game rules. Loaded verbatim by the Unity",
+    "client AND the .NET server; the server hashes it and stamps configHash on",
+    "every run so a client on a stale config is rejected rather than silently",
+    "scored against different rules.",
+    "",
+    "Requirement #16 of the brief is 'change the lane count from 4 to 5 live'.",
+    "Nothing below hardcodes 4. Lane count is len(lanes); the road generator,",
+    "the hitbox model, the input clamp and the UI all derive from this array."
+  ],
+
+  "configVersion": 1,
+
+  "lanes": [
+    { "index": 0, "multiplier": 5, "role": "scoring", "hazardWeight": 1.00 },
+    { "index": 1, "multiplier": 2, "role": "scoring", "hazardWeight": 0.55 },
+    { "index": 2, "multiplier": 1, "role": "scoring", "hazardWeight": 0.30 },
+    { "index": 3, "multiplier": 0, "role": "cashout", "hazardWeight": 0.00 }
+  ],
+  "startLane": 2,
+
+  "time": {
+    "ticksPerSecond": 60,
+    "$comment": "Fixed timestep. Render framerate must not affect the score.",
+    "maxRunTicks": 10800,
+    "$maxRunTicks": "How long a run may last before it ends as ABANDONED, and the hard ceiling on the server's replay of a submitted one. Shared and hashed because it decides an OUTCOME: it lived in the server-only economy file until the client shipped its own copy of the number, and the two disagreed - the client called a run ABANDONED at 1800 while the server replayed the same swipes to 10800 and recorded CRASHED. Both scored zero so no money moved, but the player was told one thing and the record said another. 10800 = 180s at 60Hz, matching money.noSubmission.windowSeconds: a run longer than the window it must be submitted within cannot settle anyway."
+  },
+
+  "speed": {
+    "$comment": "Speed is a pure function of tick count. Fixed-point, units are milli-units/sec to keep the score accumulator integral.",
+    "startMilliUnitsPerSec": 20000,
+    "rampMilliUnitsPerSec": 500,
+    "rampIntervalTicks": 30,
+    "maxMilliUnitsPerSec": 55000
+  },
+
+  "laneChange": {
+    "durationTicks": 12,
+    "maxQueuedInputs": 1,
+    "$multiplierRule": "During transit the effective multiplier is min(origin, destination). Closes the boundary-parking exploit.",
+    "$hitboxRule": "During transit the hitbox occupies BOTH lanes.",
+    "$reversalRule": "Reversal is always legal and takes effect on the tick it is received, never queued behind the in-flight move."
+  },
+
+  "player": {
+    "carLengthUnits": 4,
+    "$comment": "Hitbox length along the road. Collision is an integer interval overlap; during a lane change the car occupies this interval in BOTH lanes."
+  },
+
+  "hazards": {
+    "trafficSpeedFactorMin": 0.45,
+    "trafficSpeedFactorMax": 0.80,
+    "spawnLeadUnits": 90,
+    "$spawnLead": "Road distance AHEAD of the player at which a hazard appears. A hazard placed at the player's own position materialises on top of them with no warning, which is unavoidable-by-construction and reads as a bug. 90 units is roughly 1.6s of warning at the starting speed and about 4s of closing time on slower traffic.",
+    "encounterIntervalTicks": 45,
+    "maxEncounterWindowTicks": 600,
+    "$encounter": "Hazards are placed on a tick cadence, not a distance cadence, because collision is evaluated per tick and moving traffic drifts across any distance-based bucket. maxEncounterWindowTicks bounds how long a single hazard can block its lane while being overtaken.",
+    "minLongitudinalGapUnits": 12,
+    "startRunwayUnits": 60,
+    "$startRunway": "Road distance at the start of every run that carries no hazards. Without it the generator can place a hazard at position 0, killing the player on tick 0 before they have touched the screen - exactly the 'killed through no fault of their own' case the brief calls a refund request. 60 units is about 3 seconds at the starting speed: long enough to read the road, short enough not to be boring.",
+    "obstacleLengthUnits": 3,
+    "trafficLengthUnits": 5,
+    "spawnChancePerSlice": 0.80,
+    "trafficShare": 0.55,
+    "$spawnChance": "Base probability that a lane receives a hazard in a given road slice, before being scaled by that lane's hazardWeight. Lane 0 at weight 1.00 therefore sees 0.80; the cashout lane at weight 0.00 never receives one - arriving there ends the run, so a hazard on it can only zero a player at the moment they go to bank, which reads as the game cheating.",
+    "$trafficShare": "Of hazards spawned, the fraction that are moving traffic rather than static obstacles.",
+    "$solvability": "The generator must never emit a longitudinal slice where no legal lane-change sequence survives. Tools/Solvability proves this over N seeds."
+  },
+
+  "scoring": {
+    "$comment": "score += distanceTicks * multiplier, in fixed-point milli-units, floored to a whole number only for display. Never float.",
+    "accumulator": "int64-milliunits"
+  }
+}

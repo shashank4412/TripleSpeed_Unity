@@ -1,0 +1,73 @@
+{
+  "$comment": "Server-authoritative money + rating + matchmaking config. Never shipped to the client except as a payout preview.",
+
+  "money": {
+    "currency": "USD",
+    "$type": "All server-side money is INTEGER CENTS, authored as integers here and parsed as integers. No float, no decimal type, no rounding mode: every amount is a whole number of cents, exact up to 2^53, and every operation on it is integer arithmetic. parseEconomyConfig rejects a non-integer value naming the key.",
+    "stakeCents": [50, 100, 200, 500, 1000],
+    "rakeBasisPoints": 1000,
+    "$rake": "1000 bp = 10%. potCents = stakeCents*2; rakeCents = divRoundHalfEven(potCents * bp, 10000) in integer arithmetic; payoutCents = potCents - rakeCents. Half-to-even, because away-from-zero would bias the half-cent toward the house on every match.",
+    "tie": {
+      "policy": "split-after-rake",
+      "$applies": "Both players banked an identical score, OR both crashed (both scored 0). Both are ties; there is one rule, applied identically.",
+      "$money": "rakeCents = divRoundHalfEven(potCents * rakeBp, 10000); remainder = potCents - rakeCents; each side receives floor(remainder / 2) cents.",
+      "oddCentGoesTo": "poster",
+      "$oddCent": "If remainder is an odd number of cents the extra cent goes to the POSTER, who set their number blind while the challenger knew the target. With the current stake ladder this never triggers (all splits are exact) but the rule is defined so the ledger can never fail to balance if stakes change.",
+      "$rating": "Elo draw, S = 0.5 for both sides. Zero-sum, so ties cannot inflate or deflate the rating economy.",
+      "$note": "Chosen over voiding the match so the house earns on every settled match. Known cost: both players finish slightly down on a match neither lost. Tie frequency is reported by Tools/Simulate; if double-crashes are common this rule should be revisited."
+    },
+    "noSubmission": {
+    "policy": "forfeit-as-zero",
+    "windowSeconds": 180,
+    "$applies": "A player who staked and received a seed but produced no valid submission before the window closes.",
+    "$money": "Settles as an ordinary loss. Stake is already debited; the opponent takes the pot less rake. No special money path.",
+    "$rating": "Ordinary loss, S = 0.",
+    "$outcome": "ABANDONED(0). The score of record is 0 — identical to crashing into a hazard.",
+    "$why": "Intent is never inferred. A real phone crash and a deliberate force-quit are indistinguishable in principle, so the rule is built so that not submitting can never beat submitting: any completed run scores >= 0, so quitting is weakly dominated. This satisfies the brief's 'disconnect is not a strategy' without a detector that could be wrong.",
+    "$bothSides": "If BOTH players fail to submit, both score 0, which is a tie and settles under money.tie.",
+    "$knownGap": "A player on a genuinely broken device loses their stake. Accepted: the alternative (refund on non-submission) hands every losing player a free undo. Documented in the architecture doc under what we knowingly do not handle."
+  },
+  "challengeTtlSeconds": 900,
+    "$expiry": "Full refund to poster, once. No rating movement for either side."
+  },
+
+  "roleAsymmetry": {
+    "$comment": "The poster sets their number blind; the challenger would otherwise know it and bank one point above it. See DevDocs/decisions/0009-role-asymmetry.md for the arithmetic and the pre-registered prediction.",
+    "hideTargetFromChallenger": true,
+    "$hideTarget": "The server never sends a poster's banked score to a challenger whose run is unfinished. Enforced by omission, not by client-side hiding: a patched client shows whatever it is sent. Set false to reproduce the unmitigated behaviour for the control run in report section 6.",
+    "$why": "With the target visible the poster's win rate is capped at 25% however well they play, because they can only choose their survival probability S and win with probability S*(1-S). That maximum is independent of the hazard shape. Hiding it makes both seats face the same blind decision.",
+    "$alsoConsidered": "Alternating roles, weighting the Elo update by role, and a poster rake discount. All rejected in the ADR; only hiding the target actually equalises win rates at equal rating, which is the test the brief sets."
+  },
+
+  "rating": {
+    "system": "elo",
+    "initial": 1200,
+    "floor": 100,
+    "ceiling": null,
+    "$ceiling": "No hard ceiling; justified in DevDocs/decisions. Elo is self-limiting because expectation saturates.",
+    "provisionalMatches": 10,
+    "kFactors": [
+      { "maxMatches": 10, "k": 40, "$label": "provisional" },
+      { "maxRating": 2100, "k": 24 },
+      { "k": 16 }
+    ],
+    "leagues": { "count": 10, "boundaries": [800, 1000, 1150, 1250, 1350, 1450, 1600, 1800, 2100] },
+    "seasonReset": { "mode": "soft", "keepWeight": 0.6, "anchor": 1200, "anchorWeight": 0.4 },
+    "inactivity": { "mode": "none", "$comment": "Nothing happens to an idle rating, deliberately. 'freeze' was the wrong word: freeze is a real mechanism (lock the rating, or widen an uncertainty term) and we implement none of it. See DevDocs/decisions/0012-inactivity.md. Parsed by nothing — declarative only." }
+  },
+
+  "matchmaking": {
+    "$comment": "Selection-and-ranking over a live inventory of posted challenges, NOT queue pairing.",
+    "stakeMatch": "exact",
+    "band": { "initial": 100, "widenPer10s": 25, "cap": 600 },
+    "recentOpponent": { "maxMatches": 2, "windowHours": 24 },
+    "newPlayerProtection": { "matches": 5, "excludeTopDecile": true },
+    "collusion": {
+      "sameAccount": "block",
+      "sameDeviceFingerprint": "block",
+      "samePaymentInstrument": "block",
+      "sharedIpWindowMinutes": 60
+    },
+    "starvation": { "policy": "post-own-challenge", "$comment": "Never invent a bot opponent. Every opponent is a real account." }
+  }
+}
