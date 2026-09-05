@@ -1,0 +1,24 @@
+{
+  "name": "@redline/rating",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "REDLINE rating + matchmaking, ported from src/Redline.Rating. Imported unchanged by the Cloud Functions AND the fairness proof, so the 50000-match run exercises the exact code the server runs. Zero runtime dependencies.",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "default": "./lib/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5"
+  }
+}
