@@ -1,0 +1,21 @@
+<Project>
+  <!--
+    Redline.Core lives inside a folder that Unity consumes as a `file:` package
+    (Packages/manifest.json -> "file:../Backend/sim-core-cs"), so Unity scans it
+    and writes a .meta for every file and folder it sees. MSBuild's bin/ and
+    obj/ would otherwise be created here and churn the asset database on every
+    `dotnet build`.
+
+    BaseIntermediateOutputPath must be set before Microsoft.Common.props is
+    imported or MSBuild warns MSB3539 and NuGet writes obj/ here anyway — which
+    is exactly why this lives in Directory.Build.props and not in the csproj.
+
+    Pre-migration this logic was a condition in the repo-root Directory.Build.props.
+    That file is gone with the rest of the .NET solution; this is its remaining
+    responsibility, scoped to the one project that still needs it.
+  -->
+  <PropertyGroup>
+    <BaseOutputPath>$(MSBuildThisFileDirectory)../artifacts/build/Redline.Core/bin/</BaseOutputPath>
+    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)../artifacts/build/Redline.Core/obj/</BaseIntermediateOutputPath>
+  </PropertyGroup>
+</Project>

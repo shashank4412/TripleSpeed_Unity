@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    The simulation core is compiled twice from ONE set of sources:
+      * Unity  -> Runtime/Redline.Core.asmdef  (noEngineReferences: true)
+      * .NET   -> this csproj
+
+    There is no file copying and no sync step. If these ever diverge it is
+    because someone deleted a file, not because someone forgot to port a change.
+
+    "noEngineReferences": true in the asmdef means Unity itself refuses to
+    compile this assembly if anyone adds a `using UnityEngine;`. That is the
+    enforcement mechanism, not a code-review convention.
+
+    Post the Firebase migration this project no longer belongs to a .NET
+    solution: the server, tools and tests were removed and the authoritative
+    port now lives in Backend/sim-core-ts. This csproj is kept so the C# core
+    can still be compiled and diffed against the TypeScript port, and so the
+    Unity EditMode determinism test has a reference implementation. It is fully
+    self-contained now that the repo-root Directory.Build.props is gone.
+
+    This folder is a Unity `file:` package (Packages/manifest.json), so Unity
+    scans it and writes a .meta for every file it sees. bin/ and obj/ are
+    redirected out of the package tree by the Directory.Build.props beside this
+    file, to keep the asset database from churning on every `dotnet build`.
+  -->
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <RootNamespace>Redline.Core</RootNamespace>
+    <AssemblyName>Redline.Core</AssemblyName>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsNotAsErrors>NU1901;NU1902;NU1903;NU1904</WarningsNotAsErrors>
+    <!-- Deterministic builds: same sources -> byte-identical assemblies. -->
+    <Deterministic>true</Deterministic>
+    <!-- Money and score correctness: never let the JIT reassociate float math. -->
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Runtime/**/*.cs" />
+  </ItemGroup>
+
+</Project>

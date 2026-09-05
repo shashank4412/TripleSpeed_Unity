@@ -1,0 +1,8 @@
+{
+  "name": "com.redline.core",
+  "version": "0.1.0",
+  "displayName": "Redline Simulation Core",
+  "description": "Deterministic, engine-free simulation core. Compiled by BOTH the Unity client (via asmdef) and the .NET server (via Redline.Core.csproj). There is exactly one copy of these sources.",
+  "unity": "2022.3",
+  "author": { "name": "Shashank V." }
+}
