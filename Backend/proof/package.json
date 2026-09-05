@@ -1,0 +1,41 @@
+{
+  "name": "@redline/proof",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "The fairness proof: 2,000 players, 50,000 matches, over the PRODUCTION Matchmaker + rating + settlement code (imported from @redline/rating) and the shared @redline/sim-core. Two arms \u2014 target shown vs hidden \u2014 for the role-asymmetry result in the report.",
+  "engines": {
+    "node": "20"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "start": "npm run build && node lib/main.js",
+    "test": "vitest run --passWithNoTests"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5"
+  },
+  "exports": {
+    ".": {
+      "default": "./lib/main.js"
+    },
+    "./harness": {
+      "types": "./lib/harness.d.ts",
+      "default": "./lib/harness.js"
+    },
+    "./report": {
+      "types": "./lib/report.d.ts",
+      "default": "./lib/report.js"
+    },
+    "./stats": {
+      "types": "./lib/stats.d.ts",
+      "default": "./lib/stats.js"
+    },
+    "./csv": {
+      "types": "./lib/csv.d.ts",
+      "default": "./lib/csv.js"
+    }
+  }
+}
