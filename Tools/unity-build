@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Headless Android build. Requires the Unity Editor to be CLOSED (Temp/UnityLockfile).
+#
+#   ./Tools/unity-build            release APK  -> artifacts/redline.apk
+#   ./Tools/unity-build --debug    debug APK    -> artifacts/redline-debug.apk
+#
+# The debug variant exists for testing against a laptop on the local network,
+# before a deployed backend exists. It permits http:// to a private address
+# only, installs under a different application id, and carries a banner naming
+# its backend. See BuildScript.
+set -euo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+UNITY="/Applications/Unity/Hub/Editor/6000.5.1f1/Unity.app/Contents/MacOS/Unity"
+
+METHOD="Redline.Editor.BuildScript.BuildAndroid"
+if [[ "${1:-}" == "--debug" ]]; then
+  METHOD="Redline.Editor.BuildScript.BuildAndroidDebug"
+  shift
+fi
+
+"$UNITY" -batchmode -quit -nographics -logFile - \
+  -projectPath "$ROOT" \
+  -buildTarget Android \
+  -executeMethod "$METHOD" "$@"

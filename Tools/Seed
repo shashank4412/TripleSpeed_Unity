@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Tools/Seed — the demo fixture. Node CLI over Backend/tools. See DevDocs/architecture.md.
+#
+# Defaults to the Firestore emulator. Writing to the live project needs
+# `--project live --yes` and GOOGLE_APPLICATION_CREDENTIALS.
+set -euo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT/Backend"
+exec npm --workspace @redline/tools run seed -- "$@"

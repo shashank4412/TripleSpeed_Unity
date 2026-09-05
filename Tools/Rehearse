@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Tools/Rehearse — Node CLI over Backend/tools. See DevDocs/architecture.md.
+#
+# Runs the reviewable half of the brief's sixteen review tests against the
+# Firebase emulator suite. Start the emulator first:
+#
+#   cd Backend && firebase emulators:start --only auth,functions,firestore
+#
+#   ./Tools/Rehearse
+#
+# Never reports a pass it did not observe: PASS/FAIL/BLOCKED per test, and a
+# BLOCKED always names its blocker. See Backend/tools/src/rehearse.ts.
+set -euo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT/Backend"
+exec npm --workspace @redline/tools run rehearse -- "$@"

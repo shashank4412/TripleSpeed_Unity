@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# Tools/deploy-backend — ship the Cloud Functions + Firestore rules/indexes.
+#
+# WHY THIS WRAPPER EXISTS
+#
+# `firebase deploy` uploads only Backend/functions/ and runs a bare
+# `npm install` on it in Cloud Build. Our two dependencies, @redline/sim-core
+# and @redline/rating, are npm-workspace packages ("*" version) that are not on
+# the public registry, so that install 404s and every function fails to build.
+#
+# The committed functions/package.json stays workspace-shaped so local dev and
+# `npm test` keep resolving those packages through the workspace symlink. This
+# script, for the duration of a deploy only:
+#   1. builds all three workspaces (also done by firebase.json predeploy),
+#   2. vendors the two zero-dependency packages' built lib/ into
+#      functions/vendor/  (gitignored),
+#   3. rewrites the two dep specifiers to file:./vendor/<name>,
+#   4. deploys,
+#   5. restores package.json from git no matter how the deploy exits.
+#
+#   ./Tools/deploy-backend                 # functions + firestore rules/indexes
+#   ./Tools/deploy-backend --force         # also set the Artifact Registry cleanup policy
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT/Backend"
+
+PKG=functions/package.json
+
+restore() {
+  git checkout -- "$PKG" 2>/dev/null || true
+}
+trap restore EXIT
+
+echo "==> building workspaces"
+npm run build --workspace @redline/sim-core --workspace @redline/rating --workspace @redline/functions
+
+echo "==> vendoring workspace packages into functions/vendor/"
+node functions/scripts/vendor-workspaces.mjs
+
+echo "==> rewriting $PKG dep specifiers to file:./vendor/*"
+node -e '
+  const fs = require("node:fs");
+  const p = JSON.parse(fs.readFileSync("functions/package.json", "utf8"));
+  p.dependencies["@redline/sim-core"] = "file:./vendor/sim-core";
+  p.dependencies["@redline/rating"] = "file:./vendor/rating";
+  fs.writeFileSync("functions/package.json", JSON.stringify(p, null, 2) + "\n");
+'
+
+echo "==> firebase deploy"
+firebase deploy --only functions:redline,firestore:rules,firestore:indexes --non-interactive "$@"
+
+echo "==> deploy finished; restoring $PKG"

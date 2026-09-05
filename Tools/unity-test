@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Run Unity EditMode/PlayMode tests headlessly. $1 = EditMode|PlayMode (default EditMode)
+set -euo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+UNITY="/Applications/Unity/Hub/Editor/6000.5.1f1/Unity.app/Contents/MacOS/Unity"
+PLATFORM="${1:-EditMode}"
+mkdir -p "$ROOT/artifacts"
+"$UNITY" -batchmode -runTests -nographics -logFile - \
+  -projectPath "$ROOT" \
+  -testPlatform "$PLATFORM" \
+  -testResults "$ROOT/artifacts/unity-tests-$PLATFORM.xml"

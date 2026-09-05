@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Tools/Preflight — Node CLI over Backend/tools. See DevDocs/architecture.md.
+# Read-only: never migrates, never seeds. See PreflightCommand's TS successor,
+# Backend/tools/src/preflight.ts, for what "ready" means now.
+set -euo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT/Backend"
+exec npm --workspace @redline/tools run preflight -- "$@"

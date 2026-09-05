@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Tools/Replay — Node CLI over Backend/tools. See DevDocs/architecture.md.
+set -euo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT/Backend"
+exec npm --workspace @redline/tools run replay -- "$@"

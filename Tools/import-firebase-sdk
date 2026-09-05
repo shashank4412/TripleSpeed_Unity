@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Re-import the Firebase Unity SDK into the project without opening the Editor.
+# A .unitypackage is a gzipped tar of <guid>/{asset,asset.meta,pathname}; GUIDs
+# are baked in, so re-import reproduces the exact same asset references.
+#
+#   ./Tools/import-firebase-sdk [SDK_DIR]
+#
+# SDK_DIR defaults to ~/Downloads/firebase_unity_sdk.
+set -euo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SDK="${1:-$HOME/Downloads/firebase_unity_sdk}"
+for p in FirebaseAuth FirebaseFirestore FirebaseFunctions FirebaseRemoteConfig; do
+  [ -f "$SDK/$p.unitypackage" ] || { echo "missing $SDK/$p.unitypackage" >&2; exit 1; }
+  bash "$ROOT/Tools/_import-one-unitypackage.sh" "$SDK/$p.unitypackage" "$ROOT"
+done
+echo "done. Open Unity once to let EDM4U resolve Android deps, then ./Tools/unity-test EditMode"
