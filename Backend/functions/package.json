@@ -1,0 +1,27 @@
+{
+  "name": "@redline/functions",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "REDLINE Cloud Functions (gen 2, asia-south1). Callables for createMatch/submitRun/matchmake/joinMatch, an internal settleMatch, a 60s sweep and a Firestore-TTL trigger. Imports @redline/sim-core and @redline/rating unchanged so the score and the money are decided by the same code the proof runs.",
+  "main": "lib/index.js",
+  "engines": {
+    "node": "20"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "serve": "npm run build && firebase emulators:start --only functions,firestore,auth"
+  },
+  "dependencies": {
+    "@redline/rating": "*",
+    "@redline/sim-core": "*",
+    "firebase-admin": "^12.3.0",
+    "firebase-functions": "^5.0.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4",
+    "vitest": "^2.0.5"
+  }
+}
