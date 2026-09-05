@@ -1,0 +1,9 @@
+{
+  "name": "Redline.Editor",
+  "rootNamespace": "Redline.Editor",
+  "references": ["Redline.Core", "Redline.Client", "Unity.TextMeshPro", "UnityEngine.UI"],
+  "includePlatforms": ["Editor"],
+  "excludePlatforms": [],
+  "autoReferenced": true,
+  "noEngineReferences": false
+}
